@@ -1,12 +1,9 @@
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +39,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private ArrayList<Projectile> projectiles; //An arraylist to hold the projectile objects.
 	private boolean paused; //Is the game paused
 	private String gameState; //String that represents the state of the game. Menu, Instructions, Game, etc.
+    private int score; //Keeps track of the score.
 	
 	private int counter = 0;
 	
@@ -52,14 +50,14 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 		//Initialize the rockets.
 		rockets = new ArrayList<Rocket>();
 		rockets.add(new Rocket(SMALLRADIUS, 0, 1, 1));
-		//rockets.add(new Rocket(BIGRADIUS, 0, 1.05, -1));
-		
+
 		//Initialize the arraylist for current projectiles.
 		projectiles = new ArrayList<Projectile>();
 		projectiles.add(new Projectile(1.5, 0));
 		
 		//Set the game state to the main menu
 		gameState = "game";
+		score = 0;
 		
 		//Set listeners for the key presses and mouse clicks.
 		setFocusable(true); 
@@ -195,12 +193,12 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	public void paintComponent(Graphics g)
 	{
 		if(gameState.equals("menu")) {
-			g.setColor(new Color(0, 0, 50));
+            g.setColor(new Color(0, 0, 25));
 			g.fillRect(0, 0, 600, 600);
 			g.drawImage(pausedButtonImg, CENTER - 64, CENTER - 64, 128, 128, null);
 		}
 		else if(gameState.equals("game")) {
-			g.setColor(new Color(0, 0, 50));
+            g.setColor(new Color(30, 30, 30));
 			g.fillRect(0, 0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
 			Graphics2D g2d=(Graphics2D)g; // Create a Java2D version of g.		  
 			
@@ -234,6 +232,12 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			
 			g.setColor(Color.GREEN);
 			g.fillRect(25, 25, rockets.get(0).getHealth(), 25);
+
+			g.setColor(Color.WHITE);
+			String scoreString = "SCORE: " + Integer.toString(score);
+			g.setFont(new Font("Arial", Font.PLAIN, 20));
+            FontMetrics fm = g.getFontMetrics();
+			g.drawString(scoreString, (Frame.WINDOWSIZE - fm.stringWidth(scoreString)) / 2, fm.getHeight());
 		}
 	}
 
