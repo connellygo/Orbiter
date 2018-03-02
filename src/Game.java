@@ -69,7 +69,6 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	public void start() throws InterruptedException {
 		while(true) {
 			
-			//System.out.println(paused);
 			//If the game isn't paused.
 			if(!paused) {
 				//Move the rockets.
@@ -110,7 +109,6 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 				if(rocketHitbox.contains(CENTER + p.getX(), CENTER + p.getY())) {
 					removedProjectiles.add(p); //Add projectile to the set that will be removed.
 					r.takeDamage(25);
-					System.out.println(r.getHealth());
 				}
 				
 				//If the projectile goes off screen.
@@ -279,7 +277,6 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	@Override
 	public void keyReleased(KeyEvent arg0) {
 		if(arg0.getKeyCode() == 32) { //If the spacebar is pressed.
-			System.out.println("something happened.");
 			paused = !paused;
 		}
 		
