@@ -57,6 +57,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 		
 		//Set the game state to the main menu
 		gameState = "game";
+		paused = true;
 		score = 0;
 		
 		//Set listeners for the key presses and mouse clicks.
@@ -68,7 +69,6 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	public void start() throws InterruptedException {
 		while(true) {
-			
 			//If the game isn't paused.
 			if(!paused) {
 				//Move the rockets.
@@ -83,6 +83,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 				if(counter == SPAWNSPEED) {
 					spawnProjectile();
 					counter = 0;
+					score++;
 				}
 				else {
 					counter++;
