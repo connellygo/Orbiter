@@ -40,25 +40,16 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private boolean paused; //Is the game paused
 	private String gameState; //String that represents the state of the game. Menu, Instructions, Game, etc.
     private int score; //Keeps track of the score.
+    private int alpha; //Used for transition between screens
 	
 	private int counter = 0;
 	
 	public Game() {
 		//Load all sprites needed for objects.
 		loadImages();
-		
-		//Initialize the rockets.
-		rockets = new ArrayList<Rocket>();
-		rockets.add(new Rocket(SMALLRADIUS, 0, 1, 1));
 
-		//Initialize the arraylist for current projectiles.
-		projectiles = new ArrayList<Projectile>();
-		projectiles.add(new Projectile(1.5, 0));
-		
-		//Set the game state to the main menu
-		gameState = "game";
-		paused = true;
-		score = 0;
+		//Resets the rocket, projectile and gameState.
+		reset();
 		
 		//Set listeners for the key presses and mouse clicks.
 		setFocusable(true); 
@@ -69,38 +60,68 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	public void start() throws InterruptedException {
 		while(true) {
-			//If the game isn't paused.
-			if(!paused) {
-				//Move the rockets.
-				for(Rocket r : rockets) r.move();
-				
-				//Move the projectiles.
-				for(Projectile p : projectiles) p.move();
-				
-				checkCollisions();
-				
-				//Spawn a projectile every second.
-				if(counter == SPAWNSPEED) {
-					spawnProjectile();
-					counter = 0;
-					score++;
-				}
-				else {
-					counter++;
-				}
-			}
-	
+		    if(gameState.equals("game")) {
+                //If the game isn't paused.
+                if (!paused) {
+                    //Move the rockets.
+                    for (Rocket r : rockets) r.move();
+
+                    //Move the projectiles.
+                    for (Projectile p : projectiles) p.move();
+
+                    checkCollisions();
+
+                    //If rocket loses all health, return to main menu
+                    if (rockets.get(0).getHealth() <= 0) gameState = "game over";
+
+                    //Spawn a projectile every second.
+                    if (counter == SPAWNSPEED) {
+                        spawnProjectile();
+                        counter = 0;
+                        score++;
+                    } else {
+                        counter++;
+                    }
+                }
+            } else if(gameState.equals("game over")){
+		        if(alpha == 254){
+		            reset();
+                }else {
+                    alpha += 2;
+                }
+            }
+            else if(gameState.equals("menu")){
+		        if(alpha > 0){
+		            alpha -= 2;
+                }
+            }
 			
 			//Redraw everything
 			repaint();
 	
 			//Wait .01 seconds.
 			Thread.sleep(10);
-			//break;
 		}
 		
 	}
-	
+
+    //Resets the rocket, projectile and gameState.
+	public void reset(){
+        //Initialize the rockets.
+        rockets = new ArrayList<Rocket>();
+        rockets.add(new Rocket(SMALLRADIUS, 0, 1, 1));
+
+        //Initialize the arraylist for current projectiles.
+        projectiles = new ArrayList<Projectile>();
+        projectiles.add(new Projectile(1.5, 0));
+
+        //Set the game state to the main menu
+        gameState = "menu";
+        paused = false;
+        score = 0;
+
+        alpha = 254;
+    }
 	
 	private void checkCollisions() {
 		Set<Projectile> removedProjectiles = new HashSet<Projectile>();
@@ -192,12 +213,17 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	public void paintComponent(Graphics g)
 	{
 		if(gameState.equals("menu")) {
-            g.setColor(new Color(0, 0, 25));
+            g.setColor(new Color(0, 0, 50));
 			g.fillRect(0, 0, 600, 600);
-			g.drawImage(pausedButtonImg, CENTER - 64, CENTER - 64, 128, 128, null);
+			g.setColor(Color.WHITE);
+            g.drawString("MENU", Frame.WINDOWSIZE / 2, Frame.WINDOWSIZE / 2);
+
+            //Fade in
+            g.setColor(new Color(0,0,50, alpha));
+            g.fillRect(0,0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
 		}
-		else if(gameState.equals("game")) {
-            g.setColor(new Color(30, 30, 30));
+		else if(gameState.equals("game") || gameState.equals("game over")) {
+            g.setColor(new Color(0, 0, 50));
 			g.fillRect(0, 0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
 			Graphics2D g2d=(Graphics2D)g; // Create a Java2D version of g.		  
 			
@@ -221,22 +247,29 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 				g.drawImage(pausedButtonImg, CENTER - 64, CENTER - 64, 128, 128, null);
 			}
 			
-			g.setColor(Color.YELLOW);
-			Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
+			//g.setColor(Color.YELLOW);
+			//Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
 			//g.drawPolygon(rocketHitbox);
 			//g.fillRect(CENTER, CENTER, 2,2);
-			
+
+            //Missing health bar
 			g.setColor(Color.RED);
 			g.fillRect(25, 25, 100, 25);
-			
+
+			//Remaining health bar
 			g.setColor(Color.GREEN);
 			g.fillRect(25, 25, rockets.get(0).getHealth(), 25);
 
+			//Score display
 			g.setColor(Color.WHITE);
 			String scoreString = "SCORE: " + Integer.toString(score);
 			g.setFont(new Font("Arial", Font.PLAIN, 20));
             FontMetrics fm = g.getFontMetrics();
 			g.drawString(scoreString, (Frame.WINDOWSIZE - fm.stringWidth(scoreString)) / 2, fm.getHeight());
+
+			//Fade out when player loses.
+			g.setColor(new Color(0,0,50, alpha));
+			g.fillRect(0,0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
 		}
 	}
 
@@ -265,8 +298,12 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		if(arg0.getButton() == MouseEvent.BUTTON1 && !paused) rockets.get(0).changeDirection();
-		//else if(arg0.getButton() == MouseEvent.BUTTON3) rockets.get(1).changeDirection();
+	    System.out.println(gameState);
+	    if(gameState.equals("menu")){
+            gameState = "game";
+        }else if(gameState.equals("game")) {
+            if (arg0.getButton() == MouseEvent.BUTTON1 && !paused) rockets.get(0).changeDirection();
+        }
 	}
 
 	@Override
