@@ -168,7 +168,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	private void spawnProjectile() {
 		Random r = new Random();
-		projectiles.add(new Projectile(2 + (r.nextInt(100) / 100), r.nextInt(360)));
+		projectiles.add(new Projectile(1.5 + (r.nextInt(200) / 100), r.nextInt(360)));
 	}
 
 
