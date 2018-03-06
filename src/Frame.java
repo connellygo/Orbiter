@@ -5,10 +5,11 @@ public class Frame extends JFrame{
 		Frame frame = new Frame();
 		Game game = new Game();
 		frame.add(game);
-		frame.setSize(WINDOWSIZE, WINDOWSIZE + frame.getInsets().top);
+		frame.pack();
+		frame.setSize(WINDOWSIZE, WINDOWSIZE + frame.getInsets().top + frame.getInsets().bottom);
 		frame.setTitle("Orbiter");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
+		//frame.setResizable(false);
 		frame.setVisible(true);
 		game.start();
 	}

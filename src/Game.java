@@ -3,7 +3,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -20,13 +19,14 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	//Constants
 	private static final long serialVersionUID = 1L;
 	public static final int CENTER = Frame.WINDOWSIZE / 2;
-	public static final int SMALLRADIUS = 250;
-	public static final int BIGRADIUS = 300;
+	public static final int RADIUS = 250;
 	public static final int EARTHSIZE = 128;
 	public static final int ROCKETSIZE = 64;
 	public static final int PROJECTILESIZE = 16;
 	public static final int SPAWNSPEED = 25;
-	
+	//public static final Color BACKGROUNDCOLOR = new Color(20, 40, 66);
+	public static final Color BACKGROUNDCOLOR = new Color(0, 0, 40);
+
 	
 	
 	private BufferedImage rocketImg;
@@ -34,6 +34,8 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private BufferedImage earthImg;
 	private BufferedImage projectileImg;
 	private BufferedImage pausedButtonImg;
+	private BufferedImage startButtonImg;
+	private BufferedImage helpButton;
 
 	private ArrayList<Rocket> rockets; //An arraylist to hold the rocket objects.
 	private ArrayList<Projectile> projectiles; //An arraylist to hold the projectile objects.
@@ -109,7 +111,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	public void reset(){
         //Initialize the rockets.
         rockets = new ArrayList<Rocket>();
-        rockets.add(new Rocket(SMALLRADIUS, 0, 1, 1));
+        rockets.add(new Rocket(RADIUS, 0, 1, 1));
 
         //Initialize the arraylist for current projectiles.
         projectiles = new ArrayList<Projectile>();
@@ -169,7 +171,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	private void spawnProjectile() {
 		Random r = new Random();
-		projectiles.add(new Projectile(2 + (r.nextInt(100) / 100), r.nextInt(360)));
+		projectiles.add(new Projectile(1.5 + (r.nextInt(200) / 100), r.nextInt(360)));
 	}
 
 
@@ -207,30 +209,51 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			  pausedButtonImg = null;
 			  e.printStackTrace();
 		  }
+
+		try {
+			startButtonImg = ImageIO.read(new File("startButton.png"));
+		} catch (IOException e) {
+			startButtonImg = null;
+			e.printStackTrace();
+		}
+
+		try {
+			helpButton = ImageIO.read(new File("helpButton.png"));
+		} catch (IOException e) {
+			helpButton = null;
+			e.printStackTrace();
+		}
 		  
 	}
 
 	public void paintComponent(Graphics g)
 	{
 		if(gameState.equals("menu")) {
-            g.setColor(new Color(0, 0, 50));
+            g.setColor(BACKGROUNDCOLOR);
 			g.fillRect(0, 0, 600, 600);
-			g.setColor(Color.WHITE);
-            g.drawString("MENU", Frame.WINDOWSIZE / 2, Frame.WINDOWSIZE / 2);
+			//Draw start button
+			g.drawImage(startButtonImg, CENTER + 36, CENTER - 114,128,128, null);
+
+			//Draw help button
+			g.drawImage(helpButton, CENTER + 36, CENTER - 14, 128, 128, null);
+
+			g.drawImage(earthImg, CENTER - EARTHSIZE - 75, CENTER - EARTHSIZE / 2, EARTHSIZE, EARTHSIZE, null);
 
             //Fade in
-            g.setColor(new Color(0,0,50, alpha));
+            g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
             g.fillRect(0,0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
 		}
 		else if(gameState.equals("game") || gameState.equals("game over")) {
-            g.setColor(new Color(0, 0, 50));
+            g.setColor(BACKGROUNDCOLOR);
 			g.fillRect(0, 0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
 			Graphics2D g2d=(Graphics2D)g; // Create a Java2D version of g.		  
-			
+
+            //draw projectiles
 			for(Projectile p : projectiles) {
 				g.drawImage(projectileImg, CENTER + p.getX() - PROJECTILESIZE / 2, CENTER + p.getY() - PROJECTILESIZE / 2, PROJECTILESIZE, PROJECTILESIZE, null);
 			}
-			
+
+			//Draw Earth
 			g.drawImage(earthImg, CENTER - EARTHSIZE / 2, CENTER - EARTHSIZE / 2, EARTHSIZE, EARTHSIZE, null);
 			
 			//draw rockets
@@ -242,15 +265,17 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 				else g2d.drawImage(rocketReverseImg, x - ROCKETSIZE / 2, y - ROCKETSIZE / 2, ROCKETSIZE, ROCKETSIZE, null);
 				g2d.rotate(Math.toRadians(-(r.getAngle() + 90)), x, y);  // Rotate the image.
 			}
-			
+
+			//Pause button
 			if(paused) {
 				g.drawImage(pausedButtonImg, CENTER - 64, CENTER - 64, 128, 128, null);
 			}
-			
-			//g.setColor(Color.YELLOW);
-			//Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
-			//g.drawPolygon(rocketHitbox);
-			//g.fillRect(CENTER, CENTER, 2,2);
+
+			//Test Hitbox
+//			g.setColor(Color.YELLOW);
+//			Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
+//			g.drawPolygon(rocketHitbox);
+//			g.fillRect(CENTER, CENTER, 2,2);
 
             //Missing health bar
 			g.setColor(Color.RED);
@@ -268,7 +293,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			g.drawString(scoreString, (Frame.WINDOWSIZE - fm.stringWidth(scoreString)) / 2, fm.getHeight());
 
 			//Fade out when player loses.
-			g.setColor(new Color(0,0,50, alpha));
+			g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
 			g.fillRect(0,0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
 		}
 	}
@@ -298,7 +323,6 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-	    System.out.println(gameState);
 	    if(gameState.equals("menu")){
             gameState = "game";
         }else if(gameState.equals("game")) {
