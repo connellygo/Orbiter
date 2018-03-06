@@ -171,7 +171,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	private void spawnProjectile() {
 		Random r = new Random();
-		projectiles.add(new Projectile(1.5 + (r.nextInt(200) / 100), r.nextInt(360)));
+		projectiles.add(new Projectile(2  + (score / 100) * (2 * r.nextFloat() - 1), r.nextInt(360)));
 	}
 
 
@@ -232,10 +232,10 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             g.setColor(BACKGROUNDCOLOR);
 			g.fillRect(0, 0, 600, 600);
 			//Draw start button
-			g.drawImage(startButtonImg, CENTER + 36, CENTER - 114,128,128, null);
+			g.drawImage(startButtonImg, CENTER + 36, CENTER - 89,128,128, null);
 
 			//Draw help button
-			g.drawImage(helpButton, CENTER + 36, CENTER - 14, 128, 128, null);
+			g.drawImage(helpButton, CENTER + 36, CENTER - 39, 128, 128, null);
 
 			g.drawImage(earthImg, CENTER - EARTHSIZE - 75, CENTER - EARTHSIZE / 2, EARTHSIZE, EARTHSIZE, null);
 
