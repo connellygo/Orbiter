@@ -122,6 +122,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
         paused = false;
         score = 0;
 
+		//Fade in value
         alpha = 254;
     }
 	
@@ -171,7 +172,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	private void spawnProjectile() {
 		Random r = new Random();
-		projectiles.add(new Projectile(1.5 + (r.nextInt(200) / 100), r.nextInt(360)));
+		projectiles.add(new Projectile(2 + 2 * (1 -  1 / (1 + score / 200.)) * (2 * r.nextFloat() - 1), r.nextInt(360)));
 	}
 
 
@@ -232,10 +233,10 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             g.setColor(BACKGROUNDCOLOR);
 			g.fillRect(0, 0, 600, 600);
 			//Draw start button
-			g.drawImage(startButtonImg, CENTER + 36, CENTER - 114,128,128, null);
+			g.drawImage(startButtonImg, CENTER + 36, CENTER - 89,128,128, null);
 
 			//Draw help button
-			g.drawImage(helpButton, CENTER + 36, CENTER - 14, 128, 128, null);
+			g.drawImage(helpButton, CENTER + 36, CENTER - 39, 128, 128, null);
 
 			g.drawImage(earthImg, CENTER - EARTHSIZE - 75, CENTER - EARTHSIZE / 2, EARTHSIZE, EARTHSIZE, null);
 
@@ -272,10 +273,10 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			}
 
 			//Test Hitbox
-//			g.setColor(Color.YELLOW);
-//			Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
-//			g.drawPolygon(rocketHitbox);
-//			g.fillRect(CENTER, CENTER, 2,2);
+			g.setColor(Color.YELLOW);
+			Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
+			g.drawPolygon(rocketHitbox);
+			g.fillRect(CENTER, CENTER, 2,2);
 
             //Missing health bar
 			g.setColor(Color.RED);
@@ -306,14 +307,12 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -332,8 +331,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -346,8 +344,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 
