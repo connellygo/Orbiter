@@ -122,6 +122,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
         paused = false;
         score = 0;
 
+		//Fade in value
         alpha = 254;
     }
 	
@@ -171,7 +172,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	private void spawnProjectile() {
 		Random r = new Random();
-		projectiles.add(new Projectile(2  + (score / 100) * (2 * r.nextFloat() - 1), r.nextInt(360)));
+		projectiles.add(new Projectile(2 + 2 * (1 -  1 / (1 + score / 200.)) * (2 * r.nextFloat() - 1), r.nextInt(360)));
 	}
 
 
@@ -272,10 +273,10 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			}
 
 			//Test Hitbox
-//			g.setColor(Color.YELLOW);
-//			Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
-//			g.drawPolygon(rocketHitbox);
-//			g.fillRect(CENTER, CENTER, 2,2);
+			g.setColor(Color.YELLOW);
+			Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
+			g.drawPolygon(rocketHitbox);
+			g.fillRect(CENTER, CENTER, 2,2);
 
             //Missing health bar
 			g.setColor(Color.RED);
@@ -306,14 +307,12 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -332,8 +331,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -346,8 +344,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 
