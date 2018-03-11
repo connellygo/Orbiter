@@ -43,7 +43,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private String gameState; //String that represents the state of the game. Menu, Instructions, Game, etc.
     private int score; //Keeps track of the score.
     private int alpha; //Used for transition between screens
-	
+	private Polygon startButtonPoly;
+	private Polygon helpButtonPoly;
+
 	private int counter = 0;
 	
 	public Game() {
@@ -52,8 +54,11 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 		//Resets the rocket, projectile and gameState.
 		reset();
-		
-		//Set listeners for the key presses and mouse clicks.
+
+		//Create polygon objects for clickable buttons.
+		createButtonPolygons();
+
+        //Set listeners for the key presses and mouse clicks.
 		setFocusable(true); 
 		addMouseListener(this);
 		addKeyListener(this);
@@ -146,6 +151,17 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 		for(Projectile p : removedProjectiles) projectiles.remove(p); //remove projectiles from list.
 	}
 
+	private void createButtonPolygons(){
+        //Boundaries for start button on menu.
+        int startButtonXPos[] = {CENTER + 36, CENTER + 164,CENTER + 164, CENTER + 36};
+        int startButtonYPos[] = {CENTER - 45, CENTER - 45, CENTER - 5, CENTER - 5};
+        startButtonPoly = new Polygon(startButtonXPos, startButtonYPos, 4);
+
+        //Boundaries for start button on menu.
+        int helpButtonXPos[] = {CENTER + 36, CENTER + 164,CENTER + 164, CENTER + 36};
+        int helpButtonYPos[] = {CENTER + 6, CENTER + 6, CENTER + 46, CENTER + 46};
+        helpButtonPoly = new Polygon(helpButtonXPos, helpButtonYPos, 4);
+    }
 
 	private Polygon createRocketPolygon(Rocket r) {
 		int[] xpoints = new int[4];
@@ -238,6 +254,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			//Draw help button
 			g.drawImage(helpButton, CENTER + 36, CENTER - 39, 128, 128, null);
 
+			//Earth for aesthetics and stuff.
 			g.drawImage(earthImg, CENTER - EARTHSIZE - 75, CENTER - EARTHSIZE / 2, EARTHSIZE, EARTHSIZE, null);
 
             //Fade in
@@ -323,7 +340,13 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 	    if(gameState.equals("menu")){
-            gameState = "game";
+            //If you click on start button, start game.
+	    	if(startButtonPoly.contains(arg0.getPoint())){
+	    	    gameState = "game";
+            }
+            else if(helpButtonPoly.contains(arg0.getPoint())){
+	    	    System.out.println("HELP ME");
+            }
         }else if(gameState.equals("game")) {
             if (arg0.getButton() == MouseEvent.BUTTON1 && !paused) rockets.get(0).changeDirection();
         }
