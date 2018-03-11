@@ -24,11 +24,11 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	public static final int ROCKETSIZE = 64;
 	public static final int PROJECTILESIZE = 16;
 	public static final int SPAWNSPEED = 25;
-	//public static final Color BACKGROUNDCOLOR = new Color(20, 40, 66);
 	public static final Color BACKGROUNDCOLOR = new Color(0, 0, 40);
+	public static final int STARSPACING = 60;
 
 	
-	
+	//Images
 	private BufferedImage rocketImg;
 	private BufferedImage rocketReverseImg;
 	private BufferedImage earthImg;
@@ -36,16 +36,18 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private BufferedImage pausedButtonImg;
 	private BufferedImage startButtonImg;
 	private BufferedImage helpButton;
+	private BufferedImage starImg;
 
+	//Variables
 	private ArrayList<Rocket> rockets; //An arraylist to hold the rocket objects.
 	private ArrayList<Projectile> projectiles; //An arraylist to hold the projectile objects.
 	private boolean paused; //Is the game paused
 	private String gameState; //String that represents the state of the game. Menu, Instructions, Game, etc.
     private int score; //Keeps track of the score.
     private int alpha; //Used for transition between screens
-	private Polygon startButtonPoly;
-	private Polygon helpButtonPoly;
-
+	private Polygon startButtonPoly; //Polygon used for clicking on start button.
+	private Polygon helpButtonPoly; //Polygon used for clicking on help button.
+    private Point[][] starLocations;
 	private int counter = 0;
 	
 	public Game() {
@@ -57,6 +59,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 		//Create polygon objects for clickable buttons.
 		createButtonPolygons();
+
+		//Generate locations for stars
+		placeStars();
 
         //Set listeners for the key presses and mouse clicks.
 		setFocusable(true); 
@@ -163,6 +168,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
         helpButtonPoly = new Polygon(helpButtonXPos, helpButtonYPos, 4);
     }
 
+    //Create hitbox for rocket
 	private Polygon createRocketPolygon(Rocket r) {
 		int[] xpoints = new int[4];
 		int[] ypoints = new int[4];
@@ -185,6 +191,16 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 		return new Polygon(xpoints, ypoints, 4);
 	}
 
+	private void placeStars(){
+	    int rowSize = Frame.WINDOWSIZE / STARSPACING;
+        starLocations = new Point[rowSize][rowSize];
+        Random r = new Random();
+	    for (int i = 0; i < rowSize; i++){
+	        for(int j = 0; j < rowSize; j++){
+                starLocations[i][j] = new Point(i * STARSPACING + r.nextInt(STARSPACING - 8), j * STARSPACING + r.nextInt(STARSPACING - 8));
+            }
+        }
+    }
 
 	private void spawnProjectile() {
 		Random r = new Random();
@@ -240,14 +256,30 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			helpButton = null;
 			e.printStackTrace();
 		}
+
+        try {
+            starImg = ImageIO.read(new File("star.png"));
+        } catch (IOException e) {
+            starImg = null;
+            e.printStackTrace();
+        }
 		  
 	}
 
 	public void paintComponent(Graphics g)
 	{
 		if(gameState.equals("menu")) {
-            g.setColor(BACKGROUNDCOLOR);
+            //Set Background Color
+		    g.setColor(BACKGROUNDCOLOR);
 			g.fillRect(0, 0, 600, 600);
+
+			//Draw Stars
+            for(int i = 0; i < starLocations.length; i++){
+                for(int j = 0; j < starLocations.length; j++){
+                    g.drawImage(starImg, starLocations[i][j].x, starLocations[i][j].y, 8, 8, null);
+                }
+            }
+
 			//Draw start button
 			g.drawImage(startButtonImg, CENTER + 36, CENTER - 89,128,128, null);
 
@@ -262,8 +294,17 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             g.fillRect(0,0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
 		}
 		else if(gameState.equals("game") || gameState.equals("game over")) {
+		    //Background color
             g.setColor(BACKGROUNDCOLOR);
 			g.fillRect(0, 0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
+
+            //Draw Stars
+            for(int i = 0; i < starLocations.length; i++){
+                for(int j = 0; j < starLocations.length; j++){
+                    g.drawImage(starImg, starLocations[i][j].x, starLocations[i][j].y, 8, 8, null);
+                }
+            }
+
 			Graphics2D g2d=(Graphics2D)g; // Create a Java2D version of g.		  
 
             //draw projectiles
@@ -290,10 +331,10 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			}
 
 			//Test Hitbox
-			g.setColor(Color.YELLOW);
-			Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
-			g.drawPolygon(rocketHitbox);
-			g.fillRect(CENTER, CENTER, 2,2);
+//			g.setColor(Color.YELLOW);
+//			Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
+//			g.drawPolygon(rocketHitbox);
+//			g.fillRect(CENTER, CENTER, 2,2);
 
             //Missing health bar
 			g.setColor(Color.RED);
