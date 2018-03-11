@@ -76,5 +76,6 @@ public class Rocket {
 
 	public void takeDamage(int damage) {
 		health -= damage;
+		if(health > 100) health = 100;
 	}
 }

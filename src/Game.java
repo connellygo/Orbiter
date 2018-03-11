@@ -6,10 +6,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -37,6 +34,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private BufferedImage startButtonImg;
 	private BufferedImage helpButton;
 	private BufferedImage starImg;
+	private BufferedImage healthImg;
 
 	//Variables
 	private ArrayList<Rocket> rockets; //An arraylist to hold the rocket objects.
@@ -47,8 +45,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
     private int alpha; //Used for transition between screens
 	private Polygon startButtonPoly; //Polygon used for clicking on start button.
 	private Polygon helpButtonPoly; //Polygon used for clicking on help button.
-    private Point[][] starLocations;
-	private int counter = 0;
+    private Point[][] starLocations; //Holds locations for star images.
+	private ArrayList<Point> health; //Holds the locations for health packs.
+	private int counter = 0; //Incremented every frame. Used for timing projectile and health spawns.
 	
 	public Game() {
 		//Load all sprites needed for objects.
@@ -91,6 +90,12 @@ public class Game extends JPanel implements KeyListener, MouseListener{
                         spawnProjectile();
                         counter = 0;
                         score++;
+
+                        //Spawn health
+						if(score % 50 == 0){
+							spawnHealth();
+						}
+
                     } else {
                         counter++;
                     }
@@ -117,11 +122,19 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 		
 	}
 
-    //Resets the rocket, projectile and gameState.
+	private void spawnHealth() {
+		Random r = new Random();
+		double angle = Math.toRadians(r.nextInt(360));
+		health.add(new Point((int) (CENTER + RADIUS * Math.cos(angle)), (int) (CENTER + RADIUS * Math.sin(angle))));
+	}
+
+	//Resets the rocket, projectile and gameState.
 	public void reset(){
         //Initialize the rockets.
         rockets = new ArrayList<Rocket>();
         rockets.add(new Rocket(RADIUS, 0, 1, 1));
+
+        health = new ArrayList<Point>();
 
         //Initialize the arraylist for current projectiles.
         projectiles = new ArrayList<Projectile>();
@@ -137,10 +150,14 @@ public class Game extends JPanel implements KeyListener, MouseListener{
     }
 	
 	private void checkCollisions() {
-		Set<Projectile> removedProjectiles = new HashSet<Projectile>();
+		Set<Projectile> removedProjectiles = new HashSet<Projectile>(); //Create set of projectiles that will be removed.
+		Set<Point> removedHealth = new HashSet<Point>(); //Create set of health packs that will be removed.
+
 		for(Rocket r : rockets) {
-			Polygon rocketHitbox = createRocketPolygon(r);
+			Polygon rocketHitbox = createRocketPolygon(r); //Creates polygon representing the hitbox for the rocket.
+
 			for(Projectile p : projectiles) {
+				//rocket collides with projectile, take damage.
 				if(rocketHitbox.contains(CENTER + p.getX(), CENTER + p.getY())) {
 					removedProjectiles.add(p); //Add projectile to the set that will be removed.
 					r.takeDamage(25);
@@ -151,9 +168,18 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 					removedProjectiles.add(p); //Add projectile to the set that will be removed.
 				}
 			}
+
+			//If rocket takes health, heal rocket.
+			for(Point p : health){
+				if(rocketHitbox.contains(p)){
+					removedHealth.add(p); //Add health pack to the set that will be removed.
+					r.takeDamage(-10); //Heal rocket.
+				}
+			}
 			
 		}
 		for(Projectile p : removedProjectiles) projectiles.remove(p); //remove projectiles from list.
+		for(Point p : removedHealth) health.remove(p); //remove taken health from list.
 	}
 
 	private void createButtonPolygons(){
@@ -263,6 +289,13 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             starImg = null;
             e.printStackTrace();
         }
+
+		try {
+			healthImg = ImageIO.read(new File("health.png"));
+		} catch (IOException e) {
+			healthImg = null;
+			e.printStackTrace();
+		}
 		  
 	}
 
@@ -305,17 +338,22 @@ public class Game extends JPanel implements KeyListener, MouseListener{
                 }
             }
 
-			Graphics2D g2d=(Graphics2D)g; // Create a Java2D version of g.		  
+            //Draw health packs
+			for(Point p : health) {
+				g.drawImage(healthImg, p.x - 12, p.y - 12, 24, 24, null);
+			}
 
-            //draw projectiles
+			//Draw projectiles
 			for(Projectile p : projectiles) {
 				g.drawImage(projectileImg, CENTER + p.getX() - PROJECTILESIZE / 2, CENTER + p.getY() - PROJECTILESIZE / 2, PROJECTILESIZE, PROJECTILESIZE, null);
 			}
 
+
 			//Draw Earth
 			g.drawImage(earthImg, CENTER - EARTHSIZE / 2, CENTER - EARTHSIZE / 2, EARTHSIZE, EARTHSIZE, null);
-			
+
 			//draw rockets
+			Graphics2D g2d=(Graphics2D)g; // Create a Java2D version of g.
 			for(Rocket r : rockets) {
 				int x = CENTER + r.getX();
 				int y = CENTER + r.getY();
