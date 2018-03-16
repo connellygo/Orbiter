@@ -107,12 +107,26 @@ public class Game extends JPanel implements KeyListener, MouseListener{
                     alpha += 2;
                 }
             }
+            else if (gameState.equals("menu to game1")){
+		    	alpha += 2;
+		    	if(alpha >= 254){
+		    		gameState = "menu to game2";
+		    		alpha = 254;
+				}
+			}
+			else if(gameState.equals("menu to game2")){
+				alpha -= 2;
+				if(alpha <= 0){
+					alpha = 0;
+					gameState = "game";
+				}
+			}
             else if(gameState.equals("menu")){
 		        if(alpha > 0){
 		            alpha -= 2;
                 }
             }
-			
+
 			//Redraw everything
 			repaint();
 	
@@ -301,7 +315,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	public void paintComponent(Graphics g)
 	{
-		if(gameState.equals("menu")) {
+		if(gameState.equals("menu") || gameState.equals("menu to game1")) {
             //Set Background Color
 		    g.setColor(BACKGROUNDCOLOR);
 			g.fillRect(0, 0, 600, 600);
@@ -326,7 +340,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
             g.fillRect(0,0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
 		}
-		else if(gameState.equals("game") || gameState.equals("game over")) {
+		else if(gameState.equals("game") || gameState.equals("game over") || gameState.equals("menu to game2")) {
 		    //Background color
             g.setColor(BACKGROUNDCOLOR);
 			g.fillRect(0, 0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
@@ -389,7 +403,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             FontMetrics fm = g.getFontMetrics();
 			g.drawString(scoreString, (Frame.WINDOWSIZE - fm.stringWidth(scoreString)) / 2, fm.getHeight());
 
-			//Fade out when player loses.
+			//Fade in and out.
 			g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
 			g.fillRect(0,0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
 		}
@@ -421,7 +435,8 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	    if(gameState.equals("menu")){
             //If you click on start button, start game.
 	    	if(startButtonPoly.contains(arg0.getPoint())){
-	    	    gameState = "game";
+	    	    alpha = 0;
+	    		gameState = "menu to game1";
             }
             else if(helpButtonPoly.contains(arg0.getPoint())){
 	    	    System.out.println("HELP ME");
