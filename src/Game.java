@@ -15,7 +15,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	
 	//Constants
 	private static final long serialVersionUID = 1L;
-	public static final int CENTER = Frame.WINDOWSIZE / 2;
+	public static final int CENTER = Orbiter.WINDOWSIZE / 2;
 	public static final int RADIUS = 250;
 	public static final int EARTHSIZE = 128;
 	public static final int ROCKETSIZE = 64;
@@ -48,10 +48,15 @@ public class Game extends JPanel implements KeyListener, MouseListener{
     private Point[][] starLocations; //Holds locations for star images.
 	private ArrayList<Point> health; //Holds the locations for health packs.
 	private int counter = 0; //Incremented every frame. Used for timing projectile and health spawns.
+	private ArrayList<Integer> highscores; //Keeps track of the top 10 scores;
+    private String highScoreName; //Name of the new high score.
 	
 	public Game() {
 		//Load all sprites needed for objects.
 		loadImages();
+
+		//Reads the high scores in from file.
+		loadScores();
 
 		//Resets the rocket, projectile and gameState.
 		reset();
@@ -102,8 +107,20 @@ public class Game extends JPanel implements KeyListener, MouseListener{
                 }
             } else if(gameState.equals("game over")){
 		        if(alpha == 254){
-		            reset();
-                }else {
+		            if(highscores.size() < 10 || score > highscores.get(10)){
+		                gameState = "new high score";
+		                if(highscores.size() != 0) {
+                            highscores.set(highscores.size() - 1, score);
+                        } else {
+		                    highscores.add(score);
+                        }
+                        Collections.sort(highscores);
+                        highScoreName = "";
+                    }
+		            else {
+                        reset();
+                    }
+                } else {
                     alpha += 2;
                 }
             }
@@ -121,7 +138,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 					gameState = "game";
 				}
 			}
-            else if(gameState.equals("menu")){
+            else if(gameState.equals("menu") || gameState.equals("new high score")){
 		        if(alpha > 0){
 		            alpha -= 2;
                 }
@@ -134,6 +151,11 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			Thread.sleep(10);
 		}
 		
+	}
+
+	//Loads top scores from file.
+	private void loadScores(){
+		highscores = new ArrayList<Integer>();
 	}
 
 	private void spawnHealth() {
@@ -178,7 +200,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 				}
 				
 				//If the projectile goes off screen.
-				if(p.getX() < -1 * Frame.WINDOWSIZE || p.getX() > Frame.WINDOWSIZE || p.getY() < -1 * Frame.WINDOWSIZE || p.getY() > Frame.WINDOWSIZE) {
+				if(p.getX() < -1 * Orbiter.WINDOWSIZE || p.getX() > Orbiter.WINDOWSIZE || p.getY() < -1 * Orbiter.WINDOWSIZE || p.getY() > Orbiter.WINDOWSIZE) {
 					removedProjectiles.add(p); //Add projectile to the set that will be removed.
 				}
 			}
@@ -232,7 +254,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	}
 
 	private void placeStars(){
-	    int rowSize = Frame.WINDOWSIZE / STARSPACING;
+	    int rowSize = Orbiter.WINDOWSIZE / STARSPACING;
         starLocations = new Point[rowSize][rowSize];
         Random r = new Random();
 	    for (int i = 0; i < rowSize; i++){
@@ -315,18 +337,18 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	public void paintComponent(Graphics g)
 	{
-		if(gameState.equals("menu") || gameState.equals("menu to game1")) {
-            //Set Background Color
-		    g.setColor(BACKGROUNDCOLOR);
-			g.fillRect(0, 0, 600, 600);
+        //Background color
+        g.setColor(BACKGROUNDCOLOR);
+        g.fillRect(0, 0, Orbiter.WINDOWSIZE, Orbiter.WINDOWSIZE);
 
-			//Draw Stars
-            for(int i = 0; i < starLocations.length; i++){
-                for(int j = 0; j < starLocations.length; j++){
-                    g.drawImage(starImg, starLocations[i][j].x, starLocations[i][j].y, 8, 8, null);
-                }
+        //Draw Stars
+        for(int i = 0; i < starLocations.length; i++){
+            for(int j = 0; j < starLocations.length; j++){
+                g.drawImage(starImg, starLocations[i][j].x, starLocations[i][j].y, 8, 8, null);
             }
+        }
 
+		if(gameState.equals("menu") || gameState.equals("menu to game1")) {
 			//Draw start button
 			g.drawImage(startButtonImg, CENTER + 36, CENTER - 89,128,128, null);
 
@@ -338,19 +360,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
             //Fade in
             g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
-            g.fillRect(0,0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
+            g.fillRect(0,0, Orbiter.WINDOWSIZE, Orbiter.WINDOWSIZE);
 		}
 		else if(gameState.equals("game") || gameState.equals("game over") || gameState.equals("menu to game2")) {
-		    //Background color
-            g.setColor(BACKGROUNDCOLOR);
-			g.fillRect(0, 0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
-
-            //Draw Stars
-            for(int i = 0; i < starLocations.length; i++){
-                for(int j = 0; j < starLocations.length; j++){
-                    g.drawImage(starImg, starLocations[i][j].x, starLocations[i][j].y, 8, 8, null);
-                }
-            }
 
             //Draw health packs
 			for(Point p : health) {
@@ -401,12 +413,22 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			String scoreString = "SCORE: " + Integer.toString(score);
 			g.setFont(new Font("Arial", Font.PLAIN, 20));
             FontMetrics fm = g.getFontMetrics();
-			g.drawString(scoreString, (Frame.WINDOWSIZE - fm.stringWidth(scoreString)) / 2, fm.getHeight());
+			g.drawString(scoreString, (Orbiter.WINDOWSIZE - fm.stringWidth(scoreString)) / 2, fm.getHeight());
 
 			//Fade in and out.
 			g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
-			g.fillRect(0,0, Frame.WINDOWSIZE, Frame.WINDOWSIZE);
+			g.fillRect(0,0, Orbiter.WINDOWSIZE, Orbiter.WINDOWSIZE);
 		}
+		else if(gameState.equals("new high score")){
+            g.setColor(Color.WHITE);
+            g.fillRect(CENTER - 204, CENTER - 52, 408, 104);
+            g.setColor(BACKGROUNDCOLOR);
+            g.fillRect(CENTER - 200, CENTER - 50, 400, 100);
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.BOLD, 30));
+            g.drawString("NEW HIGH SCORE: " + Integer.toString(score), CENTER - 200, CENTER - 15);
+            g.drawString(highScoreName, CENTER - 200, CENTER + 20);
+        }
 	}
 
 	@Override 
@@ -448,7 +470,14 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-
+	    //Typing name for new high score.
+        if(gameState.equals("new high score")) {
+            if((Character.isAlphabetic(arg0.getKeyChar()) || arg0.getKeyChar() == ' ') && highScoreName.length() < 15){
+                highScoreName += Character.toUpperCase(arg0.getKeyChar());
+            } else if(arg0.getKeyCode() == 8 && highScoreName.length() != 0){
+                highScoreName = highScoreName.substring(0,highScoreName.length() - 1);
+            }
+        }
 	}
 
 	@Override

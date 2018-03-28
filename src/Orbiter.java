@@ -1,8 +1,8 @@
 import javax.swing.JFrame;
-public class Frame extends JFrame{
+public class Orbiter extends JFrame{
 	public static final int WINDOWSIZE = 600;
 	public static void main(String[] args) throws InterruptedException {
-		Frame frame = new Frame();
+		Orbiter frame = new Orbiter();
 		Game game = new Game();
 		frame.add(game);
 		frame.pack();
