@@ -45,6 +45,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
     private int alpha; //Used for transition between screens
 	private Polygon startButtonPoly; //Polygon used for clicking on start button.
 	private Polygon helpButtonPoly; //Polygon used for clicking on help button.
+	private Polygon backButtonPoly; //Polygon used for navigating to menu.
     private Point[][] starLocations; //Holds locations for star images.
 	private ArrayList<Point> health; //Holds the locations for health packs.
 	private int counter = 0; //Incremented every frame. Used for timing projectile and health spawns.
@@ -224,10 +225,15 @@ public class Game extends JPanel implements KeyListener, MouseListener{
         int startButtonYPos[] = {CENTER - 45, CENTER - 45, CENTER - 5, CENTER - 5};
         startButtonPoly = new Polygon(startButtonXPos, startButtonYPos, 4);
 
-        //Boundaries for start button on menu.
+        //Boundaries for help button on menu.
         int helpButtonXPos[] = {CENTER + 36, CENTER + 164,CENTER + 164, CENTER + 36};
         int helpButtonYPos[] = {CENTER + 6, CENTER + 6, CENTER + 46, CENTER + 46};
         helpButtonPoly = new Polygon(helpButtonXPos, helpButtonYPos, 4);
+
+		//Boundaries for back buttons.
+		int backButtonXPos[] = {32, 160, 160, 32};
+		int backButtonYPos[] = {Orbiter.WINDOWSIZE - 72, Orbiter.WINDOWSIZE - 72, Orbiter.WINDOWSIZE - 32, Orbiter.WINDOWSIZE - 32};
+		backButtonPoly = new Polygon(backButtonXPos, backButtonYPos, 4);
     }
 
     //Create hitbox for rocket
@@ -428,6 +434,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             g.setFont(new Font("Arial", Font.BOLD, 30));
             g.drawString("NEW HIGH SCORE: " + Integer.toString(score), CENTER - 200, CENTER - 15);
             g.drawString(highScoreName, CENTER - 200, CENTER + 20);
+
+            g.setColor(Color.YELLOW);
+            g.drawPolygon(backButtonPoly);
         }
 	}
 
@@ -465,7 +474,12 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             }
         }else if(gameState.equals("game")) {
             if (arg0.getButton() == MouseEvent.BUTTON1 && !paused) rockets.get(0).changeDirection();
-        }
+        } else if (gameState.equals("new high score")){
+	    	if (backButtonPoly.contains(arg0.getPoint())){
+	    		reset();
+	    		gameState = "menu";
+			}
+		}
 	}
 
 	@Override
