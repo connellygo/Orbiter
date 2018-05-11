@@ -4,8 +4,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.Collections;
 import java.util.*;
 
 import javax.imageio.ImageIO;
@@ -50,7 +50,8 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private ArrayList<Point> health; //Holds the locations for health packs.
 	private int counter = 0; //Incremented every frame. Used for timing projectile and health spawns.
 	private ArrayList<Integer> highscores; //Keeps track of the top 10 scores;
-    private String highScoreName; //Name of the new high score.
+	private Map<Integer, String> highscoreNames; //Maps the score to the name.
+    private String newName; //Name of the new high score.
 	
 	public Game() {
 		//Load all sprites needed for objects.
@@ -110,13 +111,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 		        if(alpha == 254){
 		            if(highscores.size() < 10 || score > highscores.get(10)){
 		                gameState = "new high score";
-		                if(highscores.size() != 0) {
-                            highscores.set(highscores.size() - 1, score);
-                        } else {
-		                    highscores.add(score);
-                        }
-                        Collections.sort(highscores);
-                        highScoreName = "";
+		                newName = "";
                     }
 		            else {
                         reset();
@@ -157,6 +152,40 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	//Loads top scores from file.
 	private void loadScores(){
 		highscores = new ArrayList<Integer>();
+		highscoreNames = new HashMap<Integer, String>();
+        try{
+            BufferedReader inputStream = new BufferedReader(new FileReader("highscores.txt"));
+            String line;
+            while((line = inputStream.readLine()) != null){
+                System.out.println(line);
+                String[] lineSplit = line.split(", ");
+                int inScore = Integer.parseInt(lineSplit[1]);
+                highscores.add(inScore);
+                highscoreNames.put(inScore, lineSplit[0]);
+            }
+        } catch(Exception e){
+            System.out.println("Could not find highscores.");
+        }
+        System.out.println(highscores);
+        System.out.println(highscoreNames);
+	}
+
+	//Saves scores to file.
+	private void saveScores(){
+		try {
+			//Open highscores.txt as location to save scores.
+			BufferedWriter outputStream = new BufferedWriter(new FileWriter("highscores.txt"));
+
+			//Iterate over the highscores
+			for (Integer i : highscores) {
+				//Write the name associated with each score as well as the score.
+				String highscoreString = highscoreNames.get(i) + ", " + Integer.toString(i) + "\n";
+				outputStream.write(highscoreString);
+			}
+			outputStream.close();
+		} catch(Exception e){
+			System.out.println("Could not find file. Scores were not saved.");
+		}
 	}
 
 	private void spawnHealth() {
@@ -433,7 +462,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             g.setColor(Color.WHITE);
             g.setFont(new Font("Arial", Font.BOLD, 30));
             g.drawString("NEW HIGH SCORE: " + Integer.toString(score), CENTER - 200, CENTER - 15);
-            g.drawString(highScoreName, CENTER - 200, CENTER + 20);
+            g.drawString(newName, CENTER - 200, CENTER + 20);
 
             g.setColor(Color.YELLOW);
             g.drawPolygon(backButtonPoly);
@@ -476,6 +505,13 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             if (arg0.getButton() == MouseEvent.BUTTON1 && !paused) rockets.get(0).changeDirection();
         } else if (gameState.equals("new high score")){
 	    	if (backButtonPoly.contains(arg0.getPoint())){
+	    		highscores.add(score);
+	    		highscoreNames.put(score, newName);
+                Collections.sort(highscores);
+				while(highscores.size() > 10){
+	    			highscores.remove(highscores.get(10));
+				}
+				saveScores();
 	    		reset();
 	    		gameState = "menu";
 			}
@@ -486,10 +522,10 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	public void keyPressed(KeyEvent arg0) {
 	    //Typing name for new high score.
         if(gameState.equals("new high score")) {
-            if((Character.isAlphabetic(arg0.getKeyChar()) || arg0.getKeyChar() == ' ') && highScoreName.length() < 15){
-                highScoreName += Character.toUpperCase(arg0.getKeyChar());
-            } else if(arg0.getKeyCode() == 8 && highScoreName.length() != 0){
-                highScoreName = highScoreName.substring(0,highScoreName.length() - 1);
+            if((Character.isAlphabetic(arg0.getKeyChar()) || arg0.getKeyChar() == ' ') && newName.length() < 15){
+                newName += Character.toUpperCase(arg0.getKeyChar());
+            } else if(arg0.getKeyCode() == 8 && newName.length() != 0){
+                newName = newName.substring(0, newName.length() - 1);
             }
         }
 	}
