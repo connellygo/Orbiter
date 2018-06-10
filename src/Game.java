@@ -32,9 +32,12 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private BufferedImage projectileImg;
 	private BufferedImage pausedButtonImg;
 	private BufferedImage startButtonImg;
-	private BufferedImage helpButton;
+	private BufferedImage helpButtonImg;
 	private BufferedImage starImg;
 	private BufferedImage healthImg;
+	private BufferedImage backButtonImg;
+	private BufferedImage scoresButtonImg;
+	private BufferedImage titleImg;
 
 	//Variables
 	private ArrayList<Rocket> rockets; //An arraylist to hold the rocket objects.
@@ -315,71 +318,91 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	private void loadImages() {
 		  try {
-			  rocketImg = ImageIO.read(new File("rocket.png"));
+			  rocketImg = ImageIO.read(new File("img/rocket.png"));
 		  } catch (IOException e) {
 			  rocketImg = null;
 			  e.printStackTrace();
 		  }
 		  try {
-			  earthImg = ImageIO.read(new File("earth.png"));
+			  earthImg = ImageIO.read(new File("img/earth.png"));
 		  } catch (IOException e) {
 			  earthImg = null;
 			  e.printStackTrace();
 		  }
 		  
 		  try {
-			  rocketReverseImg = ImageIO.read(new File("rocketReverse.png"));
+			  rocketReverseImg = ImageIO.read(new File("img/rocketReverse.png"));
 		  } catch (IOException e) {
 			  rocketReverseImg = null;
 			  e.printStackTrace();
 		  }
 		  
 		  try {
-			  projectileImg = ImageIO.read(new File("projectile.png"));
+			  projectileImg = ImageIO.read(new File("img/projectile.png"));
 		  } catch (IOException e) {
 			  projectileImg = null;
 			  e.printStackTrace();
 		  }
 		  
 		  try {
-			  pausedButtonImg = ImageIO.read(new File("pausedButton.png"));
+			  pausedButtonImg = ImageIO.read(new File("img/pausedButton.png"));
 		  } catch (IOException e) {
 			  pausedButtonImg = null;
 			  e.printStackTrace();
 		  }
 
 		try {
-			startButtonImg = ImageIO.read(new File("startButton.png"));
+			startButtonImg = ImageIO.read(new File("img/startButton.png"));
 		} catch (IOException e) {
 			startButtonImg = null;
 			e.printStackTrace();
 		}
 
 		try {
-			helpButton = ImageIO.read(new File("helpButton.png"));
+			scoresButtonImg = ImageIO.read(new File("img/scoresButton.png"));
 		} catch (IOException e) {
-			helpButton = null;
+			scoresButtonImg = null;
+			e.printStackTrace();
+		}
+
+		try {
+			backButtonImg = ImageIO.read(new File("img/backButton.png"));
+		} catch (IOException e) {
+			backButtonImg = null;
+			e.printStackTrace();
+		}
+
+		try {
+			helpButtonImg = ImageIO.read(new File("img/helpButton.png"));
+		} catch (IOException e) {
+			helpButtonImg = null;
 			e.printStackTrace();
 		}
 
         try {
-            starImg = ImageIO.read(new File("star.png"));
+            starImg = ImageIO.read(new File("img/star.png"));
         } catch (IOException e) {
             starImg = null;
             e.printStackTrace();
         }
 
 		try {
-			healthImg = ImageIO.read(new File("health.png"));
+			healthImg = ImageIO.read(new File("img/health.png"));
 		} catch (IOException e) {
 			healthImg = null;
+			e.printStackTrace();
+		}
+
+		try {
+			titleImg = ImageIO.read(new File("img/title.png"));
+		} catch (IOException e) {
+			titleImg = null;
 			e.printStackTrace();
 		}
 		  
 	}
 
-	public void paintComponent(Graphics g)
-	{
+	public void paintComponent(Graphics g) {
         //Background color
         g.setColor(BACKGROUNDCOLOR);
         g.fillRect(0, 0, Orbiter.WINDOWSIZE, Orbiter.WINDOWSIZE);
@@ -395,15 +418,23 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			//Draw start button
 			g.drawImage(startButtonImg, CENTER + 36, CENTER - 89,128,128, null);
 
-			//Draw help button
-			g.drawImage(helpButton, CENTER + 36, CENTER - 39, 128, 128, null);
+			//Draw scores button
+			g.drawImage(scoresButtonImg, CENTER + 36, CENTER - 39, 128, 128, null);
+
+			//Draw scores button
+			g.drawImage(helpButtonImg, CENTER + 36, CENTER + 12, 128, 128, null);
 
 			//Earth for aesthetics and stuff.
 			g.drawImage(earthImg, CENTER - EARTHSIZE - 75, CENTER - EARTHSIZE / 2, EARTHSIZE, EARTHSIZE, null);
 
-            //Fade out
+			//Title "Orbiter"
+			g.drawImage(titleImg, (Orbiter.WINDOWSIZE - 532) / 2, 20, 512, 128, null);
+
+			//Fade out
             g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
             g.fillRect(0,0, Orbiter.WINDOWSIZE, Orbiter.WINDOWSIZE);
+
+
 		}
 		else if(gameState.equals("game") || gameState.equals("game over") || gameState.equals("menu to game2")) {
 
@@ -483,9 +514,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
                 }
             }
 
-
-            g.setColor(Color.YELLOW);
-            g.drawPolygon(backButtonPoly);
+			g.drawImage(backButtonImg, backButtonPoly.xpoints[0], backButtonPoly.ypoints[0] - 45, 128, 128, null);
+//            g.setColor(Color.YELLOW);
+//            g.drawPolygon(backButtonPoly);
         }
 	}
 
