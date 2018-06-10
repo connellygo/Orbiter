@@ -44,7 +44,8 @@ public class Game extends JPanel implements KeyListener, MouseListener{
     private int score; //Keeps track of the score.
     private int alpha; //Used for transition between screens
 	private Polygon startButtonPoly; //Polygon used for clicking on start button.
-	private Polygon helpButtonPoly; //Polygon used for clicking on help button.
+    private Polygon helpButtonPoly; //Polygon used for clicking on help button.
+    private Polygon scoresButtonPoly; //Polygon used for clicking on high scores button.
 	private Polygon backButtonPoly; //Polygon used for navigating to menu.
     private Point[][] starLocations; //Holds locations for star images.
 	private ArrayList<Point> health; //Holds the locations for health packs.
@@ -52,6 +53,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private ArrayList<Integer> highscores; //Keeps track of the top 10 scores;
 	private Map<Integer, String> highscoreNames; //Maps the score to the name.
     private String newName; //Name of the new high score.
+	private boolean editing; //Whether or not they are entering in a new high score.
 	
 	public Game() {
 		//Load all sprites needed for objects.
@@ -110,8 +112,11 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             } else if(gameState.equals("game over")){
 		        if(alpha == 254){
 		            if(highscores.size() < 10 || score > highscores.get(10)){
-		                gameState = "new high score";
+						highscores.add(score);
+						Collections.sort(highscores);
+						gameState = "scores";
 		                newName = "";
+		                editing = true;
                     }
 		            else {
                         reset();
@@ -134,7 +139,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 					gameState = "game";
 				}
 			}
-            else if(gameState.equals("menu") || gameState.equals("new high score")){
+            else if(gameState.equals("menu") || gameState.equals("scores")){
 		        if(alpha > 0){
 		            alpha -= 2;
                 }
@@ -154,10 +159,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 		highscores = new ArrayList<Integer>();
 		highscoreNames = new HashMap<Integer, String>();
         try{
-            BufferedReader inputStream = new BufferedReader(new FileReader("highscores.txt"));
+            BufferedReader inputStream = new BufferedReader(new FileReader("highscores.dat"));
             String line;
             while((line = inputStream.readLine()) != null){
-                System.out.println(line);
                 String[] lineSplit = line.split(", ");
                 int inScore = Integer.parseInt(lineSplit[1]);
                 highscores.add(inScore);
@@ -166,15 +170,13 @@ public class Game extends JPanel implements KeyListener, MouseListener{
         } catch(Exception e){
             System.out.println("Could not find highscores.");
         }
-        System.out.println(highscores);
-        System.out.println(highscoreNames);
 	}
 
 	//Saves scores to file.
 	private void saveScores(){
 		try {
-			//Open highscores.txt as location to save scores.
-			BufferedWriter outputStream = new BufferedWriter(new FileWriter("highscores.txt"));
+			//Open highscores.dat as location to save scores.
+			BufferedWriter outputStream = new BufferedWriter(new FileWriter("highscores.dat"));
 
 			//Iterate over the highscores
 			for (Integer i : highscores) {
@@ -209,6 +211,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
         //Set the game state to the main menu
         gameState = "menu";
         paused = false;
+        editing = false;
         score = 0;
 
 		//Fade in value
@@ -255,8 +258,13 @@ public class Game extends JPanel implements KeyListener, MouseListener{
         startButtonPoly = new Polygon(startButtonXPos, startButtonYPos, 4);
 
         //Boundaries for help button on menu.
-        int helpButtonXPos[] = {CENTER + 36, CENTER + 164,CENTER + 164, CENTER + 36};
-        int helpButtonYPos[] = {CENTER + 6, CENTER + 6, CENTER + 46, CENTER + 46};
+        int scoreButtonXPos[] = {CENTER + 36, CENTER + 164,CENTER + 164, CENTER + 36};
+        int scoreButtonYPos[] = {CENTER + 6, CENTER + 6, CENTER + 46, CENTER + 46};
+        scoresButtonPoly = new Polygon(scoreButtonXPos, scoreButtonYPos, 4);
+
+        //Boundaries for help button on menu.
+        int helpButtonXPos[] = {CENTER + 36, CENTER + 164, CENTER + 164, CENTER + 36};
+        int helpButtonYPos[] = {CENTER + 57, CENTER + 57, CENTER + 97, CENTER + 97};
         helpButtonPoly = new Polygon(helpButtonXPos, helpButtonYPos, 4);
 
 		//Boundaries for back buttons.
@@ -393,7 +401,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			//Earth for aesthetics and stuff.
 			g.drawImage(earthImg, CENTER - EARTHSIZE - 75, CENTER - EARTHSIZE / 2, EARTHSIZE, EARTHSIZE, null);
 
-            //Fade in
+            //Fade out
             g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
             g.fillRect(0,0, Orbiter.WINDOWSIZE, Orbiter.WINDOWSIZE);
 		}
@@ -454,15 +462,27 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
 			g.fillRect(0,0, Orbiter.WINDOWSIZE, Orbiter.WINDOWSIZE);
 		}
-		else if(gameState.equals("new high score")){
-            g.setColor(Color.WHITE);
-            g.fillRect(CENTER - 204, CENTER - 52, 408, 104);
-            g.setColor(BACKGROUNDCOLOR);
-            g.fillRect(CENTER - 200, CENTER - 50, 400, 100);
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial", Font.BOLD, 30));
-            g.drawString("NEW HIGH SCORE: " + Integer.toString(score), CENTER - 200, CENTER - 15);
-            g.drawString(newName, CENTER - 200, CENTER + 20);
+		else if(gameState.equals("scores")){
+        	g.setColor(Color.WHITE);
+			g.setFont(new Font("Arial", Font.BOLD, 30));
+			for(int i = highscores.size() - 1; i >= 0; i--) {
+                String number = Integer.toString(highscores.size() - i);
+                String score = Integer.toString(highscores.get(i));
+                String name = highscoreNames.get(Integer.parseInt(score));
+                if (!editing) {
+                    g.drawString(number + ". " + name + " - " + score, 100, (highscores.size() - i + 1) * 50);
+                } else {
+                    g.drawString("NEW HIGH SCORE:", 50, 50);
+                    if (name == null) {
+                        g.setColor(Color.YELLOW);
+                        g.drawString(number + ". " + newName + " - " + score, 100, (highscores.size() - i + 1) * 50);
+                        g.setColor(Color.WHITE);
+                    } else {
+                        g.drawString(number + ". " + name + " - " + score, 100, (highscores.size() - i + 1) * 50);
+                    }
+                }
+            }
+
 
             g.setColor(Color.YELLOW);
             g.drawPolygon(backButtonPoly);
@@ -492,22 +512,25 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-	    if(gameState.equals("menu")){
+	    if(gameState.equals("menu")){ //While on menu.
             //If you click on start button, start game.
 	    	if(startButtonPoly.contains(arg0.getPoint())){
 	    	    alpha = 0;
 	    		gameState = "menu to game1";
             }
+            //If you click the help button, get a small tutorial.
             else if(helpButtonPoly.contains(arg0.getPoint())){
 	    	    System.out.println("HELP ME");
             }
-        }else if(gameState.equals("game")) {
+            //If you click on scores button, display highscores.
+            else if(scoresButtonPoly.contains(arg0.getPoint())){
+	    	    gameState = "scores";
+            }
+        }else if(gameState.equals("game")) { //Playing the game.
             if (arg0.getButton() == MouseEvent.BUTTON1 && !paused) rockets.get(0).changeDirection();
-        } else if (gameState.equals("new high score")){
+        } else if (gameState.equals("scores")){ //Displaying highscores.
 	    	if (backButtonPoly.contains(arg0.getPoint())){
-	    		highscores.add(score);
 	    		highscoreNames.put(score, newName);
-                Collections.sort(highscores);
 				while(highscores.size() > 10){
 	    			highscores.remove(highscores.get(10));
 				}
@@ -521,7 +544,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	@Override
 	public void keyPressed(KeyEvent arg0) {
 	    //Typing name for new high score.
-        if(gameState.equals("new high score")) {
+        if(gameState.equals("scores") && editing) {
             if((Character.isAlphabetic(arg0.getKeyChar()) || arg0.getKeyChar() == ' ') && newName.length() < 15){
                 newName += Character.toUpperCase(arg0.getKeyChar());
             } else if(arg0.getKeyCode() == 8 && newName.length() != 0){
