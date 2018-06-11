@@ -1,0 +1,2 @@
+-Make help screen (Probably with GIMP)
+-Add exit button to menu and pause screen
