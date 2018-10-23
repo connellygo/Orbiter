@@ -32,7 +32,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private BufferedImage projectileImg;
 	private BufferedImage pausedButtonImg;
 	private BufferedImage startButtonImg;
-	private BufferedImage helpButtonImg;
+	private BufferedImage exitButtonImg;
 	private BufferedImage starImg;
 	private BufferedImage healthImg;
 	private BufferedImage backButtonImg;
@@ -47,7 +47,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
     private int score; //Keeps track of the score.
     private int alpha; //Used for transition between screens
 	private Polygon startButtonPoly; //Polygon used for clicking on start button.
-    private Polygon helpButtonPoly; //Polygon used for clicking on help button.
+    private Polygon exitButtonPoly; //Polygon used for clicking on exit button.
     private Polygon scoresButtonPoly; //Polygon used for clicking on high scores button.
 	private Polygon backButtonPoly; //Polygon used for navigating to menu.
     private Point[][] starLocations; //Holds locations for star images.
@@ -274,15 +274,15 @@ public class Game extends JPanel implements KeyListener, MouseListener{
         int startButtonYPos[] = {CENTER - 45, CENTER - 45, CENTER - 5, CENTER - 5};
         startButtonPoly = new Polygon(startButtonXPos, startButtonYPos, 4);
 
-        //Boundaries for help button on menu.
+        //Boundaries for scores button on menu.
         int scoreButtonXPos[] = {CENTER + 36, CENTER + 164,CENTER + 164, CENTER + 36};
         int scoreButtonYPos[] = {CENTER + 6, CENTER + 6, CENTER + 46, CENTER + 46};
         scoresButtonPoly = new Polygon(scoreButtonXPos, scoreButtonYPos, 4);
 
-        //Boundaries for help button on menu.
-        int helpButtonXPos[] = {CENTER + 36, CENTER + 164, CENTER + 164, CENTER + 36};
-        int helpButtonYPos[] = {CENTER + 57, CENTER + 57, CENTER + 97, CENTER + 97};
-        helpButtonPoly = new Polygon(helpButtonXPos, helpButtonYPos, 4);
+        //Boundaries for exit button on menu.
+        int exitButtonXPos[] = {CENTER + 36, CENTER + 164, CENTER + 164, CENTER + 36};
+        int exitButtonYPos[] = {CENTER + 57, CENTER + 57, CENTER + 97, CENTER + 97};
+		exitButtonPoly = new Polygon(exitButtonXPos, exitButtonYPos, 4);
 
 		//Boundaries for back buttons.
 		int backButtonXPos[] = {32, 160, 160, 32};
@@ -389,9 +389,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 		}
 
 		try {
-			helpButtonImg = ImageIO.read(new File("img/helpButton.png"));
+			exitButtonImg = ImageIO.read(new File("img/exitButton.png"));
 		} catch (IOException e) {
-			helpButtonImg = null;
+			exitButtonImg = null;
 			e.printStackTrace();
 		}
 
@@ -440,7 +440,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			g.drawImage(scoresButtonImg, CENTER + 36, CENTER - 39, 128, 128, null);
 
 			//Draw scores button
-			g.drawImage(helpButtonImg, CENTER + 36, CENTER + 12, 128, 128, null);
+			g.drawImage(exitButtonImg, CENTER + 36, CENTER + 12, 128, 128, null);
 
 			//Earth for aesthetics and stuff.
 			g.drawImage(earthImg, CENTER - EARTHSIZE - 75, CENTER - EARTHSIZE / 2, EARTHSIZE, EARTHSIZE, null);
@@ -578,9 +578,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	    	    alpha = 0;
 	    		gameState = "menu to game1";
             }
-            //If you click the help button, get a small tutorial.
-            else if(helpButtonPoly.contains(arg0.getPoint())){
-	    	    System.out.println("HELP ME");
+            //If you click the exit button, get a small tutorial.
+            else if(exitButtonPoly.contains(arg0.getPoint())){
+	    	    System.exit(0);
             }
             //If you click on scores button, display highscores.
             else if(scoresButtonPoly.contains(arg0.getPoint())){
