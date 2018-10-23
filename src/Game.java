@@ -5,7 +5,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Collections;
 import java.util.*;
 
 import javax.imageio.ImageIO;
@@ -46,6 +45,8 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private String gameState; //String that represents the state of the game. Menu, Instructions, Game, etc.
     private int score; //Keeps track of the score.
     private int alpha; //Used for transition between screens
+	private boolean transitioningTo; //Used for transition between scenes.
+	private String nextState; //Used for transition between scenes.
 	private Polygon startButtonPoly; //Polygon used for clicking on start button.
     private Polygon exitButtonPoly; //Polygon used for clicking on exit button.
     private Polygon scoresButtonPoly; //Polygon used for clicking on high scores button.
@@ -66,6 +67,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 		//Resets the rocket, projectile and gameState.
 		reset();
+		gameState = "menu";
 
 		//Create polygon objects for clickable buttons.
 		createButtonPolygons();
@@ -112,6 +114,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
                     }
                 }
             } else if(gameState.equals("game over")){
+		    	alpha += 2;
 		        if(alpha == 254){
 		            if(highscores.size() < 10 || score > highscores.get(0).score){
 		            	if(highscores.size() != 0) {
@@ -138,25 +141,21 @@ public class Game extends JPanel implements KeyListener, MouseListener{
                     alpha += 2;
                 }
             }
-            else if (gameState.equals("menu to game1")){
+            if (!transitioningTo){
 		    	alpha += 2;
 		    	if(alpha >= 254){
-		    		gameState = "menu to game2";
+		    		gameState = nextState;
+		    		transitioningTo = true;
 		    		alpha = 254;
 				}
 			}
-			else if(gameState.equals("menu to game2")){
-				alpha -= 2;
-				if(alpha <= 0){
+			else if(transitioningTo){
+				if(alpha > 0) {
+					alpha -= 2;
+				} else {
 					alpha = 0;
-					gameState = "game";
 				}
 			}
-            else if(gameState.equals("menu") || gameState.equals("scores")){
-		        if(alpha > 0){
-		            alpha -= 2;
-                }
-            }
 
 			//Redraw everything
 			repaint();
@@ -220,16 +219,17 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
         //Initialize the arraylist for current projectiles.
         projectiles = new ArrayList<Projectile>();
-        projectiles.add(new Projectile(1.5, 0));
+
+        counter = -200;
 
         //Set the game state to the main menu
-        gameState = "menu";
         paused = false;
         editing = false;
         score = 0;
 
 		//Fade in value
         alpha = 254;
+        transitioningTo = true;
     }
 
     //Check to see whether the the rocket has collided with a health object or projectile.
@@ -432,7 +432,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
         }
 
         //If at the menu.
-		if(gameState.equals("menu") || gameState.equals("menu to game1")) {
+		if(gameState.equals("menu")) {
 			//Draw start button
 			g.drawImage(startButtonImg, CENTER + 36, CENTER - 89,128,128, null);
 
@@ -448,14 +448,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			//Title "Orbiter"
 			g.drawImage(titleImg, (Orbiter.WINDOWSIZE - 532) / 2, 20, 512, 128, null);
 
-			//Fade out
-            g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
-            g.fillRect(0,0, Orbiter.WINDOWSIZE, Orbiter.WINDOWSIZE);
-
-
 		}
 		//If playing the game.
-		else if(gameState.equals("game") || gameState.equals("game over") || gameState.equals("menu to game2")) {
+		else if(gameState.equals("game") || gameState.equals("game over")) {
 
             //Draw health packs
 			for(Point p : health) {
@@ -508,9 +503,6 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             FontMetrics fm = g.getFontMetrics();
 			g.drawString(scoreString, (Orbiter.WINDOWSIZE - fm.stringWidth(scoreString)) / 2, fm.getHeight());
 
-			//Fade in and out.
-			g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
-			g.fillRect(0,0, Orbiter.WINDOWSIZE, Orbiter.WINDOWSIZE);
 		}
 		//If viewing or creating a new highscore.
 		else if(gameState.equals("scores")){
@@ -542,6 +534,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 			g.drawImage(backButtonImg, backButtonPoly.xpoints[0], backButtonPoly.ypoints[0] - 45, 128, 128, null);
         }
+		//Fade in and out.
+		g.setColor(new Color(BACKGROUNDCOLOR.getRed(), BACKGROUNDCOLOR.getGreen(), BACKGROUNDCOLOR.getBlue(), alpha));
+		g.fillRect(0,0, Orbiter.WINDOWSIZE, Orbiter.WINDOWSIZE);
 	}
 
 	//Not used, but necessary for compiling.
@@ -576,7 +571,8 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             //If you click on start button, start game.
 	    	if(startButtonPoly.contains(arg0.getPoint())){
 	    	    alpha = 0;
-	    		gameState = "menu to game1";
+	    		nextState = "game";
+	    		transitioningTo = false;
             }
             //If you click the exit button, get a small tutorial.
             else if(exitButtonPoly.contains(arg0.getPoint())){
@@ -584,11 +580,17 @@ public class Game extends JPanel implements KeyListener, MouseListener{
             }
             //If you click on scores button, display highscores.
             else if(scoresButtonPoly.contains(arg0.getPoint())){
-	    	    gameState = "scores";
+	    		alpha = 0;
+	    	    nextState = "scores";
+	    	    transitioningTo = false;
+
             }
         }else if(gameState.equals("game")) { //Playing the game.
+			//Change the direction of the rocket on click.
             if (arg0.getButton() == MouseEvent.BUTTON1 && !paused) rockets.get(0).changeDirection();
+
         } else if (gameState.equals("scores")){ //Displaying highscores.
+			//Return to menu if clicked on back button.
 	    	if (backButtonPoly.contains(arg0.getPoint())){
 				for(Highscore hs : highscores){
 					if(hs.name.equals("")) hs.name = newName;
@@ -598,7 +600,9 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 				}
 				saveScores();
 	    		reset();
-	    		gameState = "menu";
+	    		alpha = 0;
+	    		nextState = "menu";
+	    		transitioningTo = false;
 			}
 		}
 	}
