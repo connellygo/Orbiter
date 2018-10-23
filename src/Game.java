@@ -415,7 +415,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			titleImg = null;
 			e.printStackTrace();
 		}
-		  
+
 	}
 
 	//Draws objects to the window.
