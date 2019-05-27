@@ -339,83 +339,83 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	//Loads all images used in the project.
 	private void loadImages() {
 		  try {
-			  rocketImg = ImageIO.read(new File("img/rocket.png"));
+			  rocketImg = ImageIO.read(getClass().getResourceAsStream("img/rocket.png"));
 		  } catch (IOException e) {
 			  rocketImg = null;
 			  e.printStackTrace();
 		  }
 		  try {
-			  earthImg = ImageIO.read(new File("img/earth.png"));
+			  earthImg = ImageIO.read(getClass().getResourceAsStream("img/earth.png"));
 		  } catch (IOException e) {
 			  earthImg = null;
 			  e.printStackTrace();
 		  }
 		  
 		  try {
-			  rocketReverseImg = ImageIO.read(new File("img/rocketReverse.png"));
+			  rocketReverseImg = ImageIO.read(getClass().getResourceAsStream("img/rocketReverse.png"));
 		  } catch (IOException e) {
 			  rocketReverseImg = null;
 			  e.printStackTrace();
 		  }
 		  
 		  try {
-			  projectileImg = ImageIO.read(new File("img/projectile.png"));
+			  projectileImg = ImageIO.read(getClass().getResourceAsStream("img/projectile.png"));
 		  } catch (IOException e) {
 			  projectileImg = null;
 			  e.printStackTrace();
 		  }
 		  
 		  try {
-			  pausedButtonImg = ImageIO.read(new File("img/pausedButton.png"));
+			  pausedButtonImg = ImageIO.read(getClass().getResourceAsStream("img/pausedButton.png"));
 		  } catch (IOException e) {
 			  pausedButtonImg = null;
 			  e.printStackTrace();
 		  }
 
 		try {
-			startButtonImg = ImageIO.read(new File("img/startButton.png"));
+			startButtonImg = ImageIO.read(getClass().getResourceAsStream("img/startButton.png"));
 		} catch (IOException e) {
 			startButtonImg = null;
 			e.printStackTrace();
 		}
 
 		try {
-			scoresButtonImg = ImageIO.read(new File("img/scoresButton.png"));
+			scoresButtonImg = ImageIO.read(getClass().getResourceAsStream("img/scoresButton.png"));
 		} catch (IOException e) {
 			scoresButtonImg = null;
 			e.printStackTrace();
 		}
 
 		try {
-			backButtonImg = ImageIO.read(new File("img/backButton.png"));
+			backButtonImg = ImageIO.read(getClass().getResourceAsStream("img/backButton.png"));
 		} catch (IOException e) {
 			backButtonImg = null;
 			e.printStackTrace();
 		}
 
 		try {
-			exitButtonImg = ImageIO.read(new File("img/exitButton.png"));
+			exitButtonImg = ImageIO.read(getClass().getResourceAsStream("img/exitButton.png"));
 		} catch (IOException e) {
 			exitButtonImg = null;
 			e.printStackTrace();
 		}
 
         try {
-            starImg = ImageIO.read(new File("img/star.png"));
+            starImg = ImageIO.read(getClass().getResourceAsStream("img/star.png"));
         } catch (IOException e) {
             starImg = null;
             e.printStackTrace();
         }
 
 		try {
-			healthImg = ImageIO.read(new File("img/health.png"));
+			healthImg = ImageIO.read(getClass().getResourceAsStream("img/health.png"));
 		} catch (IOException e) {
 			healthImg = null;
 			e.printStackTrace();
 		}
 
 		try {
-			titleImg = ImageIO.read(new File("img/title.png"));
+			titleImg = ImageIO.read(getClass().getResourceAsStream("img/title.png"));
 		} catch (IOException e) {
 			titleImg = null;
 			e.printStackTrace();
