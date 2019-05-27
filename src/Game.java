@@ -48,7 +48,8 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	private boolean transitioningTo; //Used for transition between scenes.
 	private String nextState; //Used for transition between scenes.
 	private Polygon startButtonPoly; //Polygon used for clicking on start button.
-    private Polygon exitButtonPoly; //Polygon used for clicking on exit button.
+	private Polygon exitButtonPoly; //Polygon used for clicking on exit button.
+	private Polygon exitGameButtonPoly; //Polygon used for clicking on exit button.
     private Polygon scoresButtonPoly; //Polygon used for clicking on high scores button.
 	private Polygon backButtonPoly; //Polygon used for navigating to menu.
     private Point[][] starLocations; //Holds locations for star images.
@@ -288,7 +289,11 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 		int backButtonXPos[] = {32, 160, 160, 32};
 		int backButtonYPos[] = {Orbiter.WINDOWSIZE - 72, Orbiter.WINDOWSIZE - 72, Orbiter.WINDOWSIZE - 32, Orbiter.WINDOWSIZE - 32};
 		backButtonPoly = new Polygon(backButtonXPos, backButtonYPos, 4);
-    }
+
+		//Boundaries for exit game button.
+		int exitGameButtonXPos[] = {32, 160, 160, 32};
+		int exitGameButtonYPos[] = {Orbiter.WINDOWSIZE - 72, Orbiter.WINDOWSIZE - 72, Orbiter.WINDOWSIZE - 32, Orbiter.WINDOWSIZE - 32};
+		exitGameButtonPoly = new Polygon(exitGameButtonXPos, exitGameButtonYPos, 4);    }
 
     //Create hitbox for rocket
 	private Polygon createRocketPolygon(Rocket r) {
@@ -439,7 +444,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			//Draw scores button
 			g.drawImage(scoresButtonImg, CENTER + 36, CENTER - 39, 128, 128, null);
 
-			//Draw scores button
+			//Draw exit button
 			g.drawImage(exitButtonImg, CENTER + 36, CENTER + 12, 128, 128, null);
 
 			//Earth for aesthetics and stuff.
@@ -479,7 +484,12 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 			//Pause button
 			if(paused) {
+				//Draw paused box
 				g.drawImage(pausedButtonImg, CENTER - 64, CENTER - 64, 128, 128, null);
+
+				//Draw exit button
+				g.drawImage(exitButtonImg, exitGameButtonPoly.xpoints[0], exitGameButtonPoly.ypoints[0] - 45, 128, 128, null);
+
 			}
 
 			//Test Hitbox
@@ -570,6 +580,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	    if(gameState.equals("menu")){ //While on menu.
             //If you click on start button, start game.
 	    	if(startButtonPoly.contains(arg0.getPoint())){
+	    		reset();
 	    	    alpha = 0;
 	    		nextState = "game";
 	    		transitioningTo = false;
@@ -586,8 +597,14 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
             }
         }else if(gameState.equals("game")) { //Playing the game.
-			//Change the direction of the rocket on click.
-            if (arg0.getButton() == MouseEvent.BUTTON1 && !paused) rockets.get(0).changeDirection();
+			if(!paused) {
+				//Change the direction of the rocket on click.
+				if (arg0.getButton() == MouseEvent.BUTTON1 && !paused) rockets.get(0).changeDirection();
+			} else if(exitGameButtonPoly.contains(arg0.getPoint())){
+				alpha = 0;
+				nextState = "menu";
+				transitioningTo = false;
+			}
 
         } else if (gameState.equals("scores")){ //Displaying highscores.
 			//Return to menu if clicked on back button.
@@ -599,7 +616,6 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 	    			highscores.remove(highscores.get(10));
 				}
 				saveScores();
-	    		reset();
 	    		alpha = 0;
 	    		nextState = "menu";
 	    		transitioningTo = false;
