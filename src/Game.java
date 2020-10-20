@@ -328,7 +328,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
     //Spawns projectiles that move in a random direction.
 	private void spawnProjectile() {
 		Random r = new Random();
-		projectiles.add(new Projectile(2 + 2 * (1 -  1 / (1 + score / 200.)) * (2 * r.nextFloat() - 1), r.nextInt(360)));
+		projectiles.add(new Projectile(2.5 + 2.5 * (1 -  1 / (1 + score / 200.)) * (2 * r.nextFloat() - 1), r.nextInt(360)));
 	}
 
 	//Loads all images used in the project.
