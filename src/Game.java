@@ -136,7 +136,8 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 		                editing = true;
                     }
 		            else {
-                        reset();
+                        nextState = "menu";
+                        transitioningTo = false;
                     }
                 } else {
                     alpha += 2;
@@ -630,8 +631,19 @@ public class Game extends JPanel implements KeyListener, MouseListener{
         if(gameState.equals("scores") && editing) {
             if((Character.isAlphabetic(arg0.getKeyChar()) || arg0.getKeyChar() == ' ') && newName.length() < 15){
                 newName += Character.toUpperCase(arg0.getKeyChar());
-            } else if(arg0.getKeyCode() == 8 && newName.length() != 0){
+            } else if(arg0.getKeyCode() == 8 && newName.length() != 0){ //Backspace
                 newName = newName.substring(0, newName.length() - 1);
+            } else if(arg0.getKeyChar() == '\n') { //Save highscore name
+                for(Highscore hs : highscores){
+                    if(hs.name.equals("")) hs.name = newName;
+                }
+                while(highscores.size() > 10){
+                    highscores.remove(highscores.get(10));
+                }
+                saveScores();
+                alpha = 0;
+                nextState = "menu";
+                transitioningTo = false;
             }
         }
 	}
