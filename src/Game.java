@@ -493,12 +493,6 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 
 			}
 
-			//Test Hitbox
-//			g.setColor(Color.YELLOW);
-//			Polygon rocketHitbox = createRocketPolygon(rockets.get(0));
-//			g.drawPolygon(rocketHitbox);
-//			g.fillRect(CENTER, CENTER, 2,2);
-
             //Missing health bar
 			g.setColor(Color.RED);
 			g.fillRect(25, 25, 100, 25);
@@ -528,6 +522,7 @@ public class Game extends JPanel implements KeyListener, MouseListener{
 			g.setFont((new Font("Arial", Font.BOLD, 28)));
 			for(int i = highscores.size() - 1; i >= 0; i--) {
                 String number = Integer.toString(highscores.size() - i);
+                if(!number.equals("10")) number = "  " + number; //Add space before single digit numbers
                 String score = Integer.toString(highscores.get(i).score);
                 String name = highscores.get(i).name;
                 if (!editing) {
